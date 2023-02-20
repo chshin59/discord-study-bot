@@ -83,12 +83,12 @@ client.on(Events.VoiceStateUpdate, async (oldState, newState) => {
   if (!oldState.channelId && newState.channelId) {
     const message = `@everyone ${user.username} 님이 입장`;
     channel.send(message);
-    await startStudy(user.id);
+    // await startStudy(user.id);
   }
 
   // Voice 채널 퇴장
   else if (oldState.channelId && !newState.channelId) {
-    await endStudy(user.id);
+    // await endStudy(user.id);
   }
 });
 
