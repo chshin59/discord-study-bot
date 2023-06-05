@@ -1,11 +1,11 @@
 declare module "discord-study-bot" {
   import {
-    Awaitable,
-    ClientEvents,
-    Interaction,
-    SlashCommandBuilder,
-    User as DiscordUser,
-  } from "discord.js";
+    API,
+    APIInteraction,
+    APIUser as DiscordUser,
+    MappedEvents,
+    RESTPostAPIChatInputApplicationCommandsJSONBody,
+  } from "@discordjs/core";
   import {
     CreatePageParameters,
     CreatePageResponse,
@@ -18,13 +18,13 @@ declare module "discord-study-bot" {
 
   // Discord
   export interface Command {
-    data: SlashCommandBuilder;
-    execute: (interaction: Interaction) => Awaitable<void>;
+    data: RESTPostAPIChatInputApplicationCommandsJSONBody;
+    execute: (interaction: APIInteraction, api: API) => Promise<void>;
   }
 
   export interface Event {
-    name: keyof ClientEvents;
-    listener: (...args: ClientEvents[keyof ClientEvents]) => Awaitable<void>;
+    name: keyof MappedEvents;
+    listener: (...args: MappedEvents[keyof MappedEvents]) => void;
   }
 
   // Notion
@@ -45,7 +45,6 @@ declare module "discord-study-bot" {
   // User
   export type Name = string;
   export type Duration = number;
-
   export { DiscordUser, NotionUser };
 }
 

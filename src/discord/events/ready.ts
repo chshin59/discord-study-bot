@@ -1,9 +1,15 @@
-import { Client, Events } from "discord.js";
+import {
+  GatewayDispatchEvents,
+  GatewayReadyDispatchData,
+  WithIntrinsicProps,
+} from "@discordjs/core";
 
-const name = Events.ClientReady;
+const name = GatewayDispatchEvents.Ready;
 
-function listener(client: Client<true>) {
-  console.log(`Ready! Logged in as ${client.user.tag}`);
-}
+const listener: (
+  args_0: WithIntrinsicProps<GatewayReadyDispatchData>
+) => void = () => {
+  console.log("Ready!");
+};
 
 export { name, listener };

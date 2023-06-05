@@ -1,7 +1,7 @@
 import Discord from "../discord";
 import Notion from "../notion";
 import { usersDatabaseId } from "../utils";
-import { DiscordUser, Duration, Name, NotionUser } from "discord-study-bot";
+import { Duration, Name, DiscordUser, NotionUser } from "discord-study-bot";
 
 export default class User {
   private static users: User[];
@@ -20,7 +20,7 @@ export default class User {
 
       const discordId: string =
         result.properties["discordId"].rich_text[0].plain_text;
-      const discordUser: DiscordUser = await Discord.fetchUser(discordId);
+      const discordUser: DiscordUser = await Discord.api.users.get(discordId);
       const notionUser: NotionUser = result.properties["사람"].people[0];
 
       const user = new User(name, duration, discordUser, notionUser);
