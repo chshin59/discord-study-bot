@@ -6,13 +6,13 @@ import {
 } from "@discordjs/core";
 
 const data: RESTPostAPIChatInputApplicationCommandsJSONBody = {
-  name: "ping",
-  description: "Replies with Pong!",
+  name: "핑",
+  description: "퐁으로 대답!",
 };
 
 async function execute(interaction: APIInteraction, api: API) {
   await api.interactions.reply(interaction.id, interaction.token, {
-    content: "Pong!",
+    content: "퐁!",
     flags: MessageFlags.Ephemeral,
   });
 }

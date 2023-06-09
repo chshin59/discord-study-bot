@@ -14,7 +14,7 @@ import {
   InteractionType,
   WithIntrinsicProps,
 } from "@discordjs/core";
-import { Command } from "discord-study-bot";
+import Discord from "..";
 
 const name = GatewayDispatchEvents.InteractionCreate;
 
@@ -27,12 +27,12 @@ const listener: (
 
     case InteractionType.ApplicationCommand: {
       const commandName = interaction.data.name;
-      try {
-        const command: Command = await import(`../commands/${commandName}.js`);
-        command.execute(interaction, api);
-      } catch (error) {
-        console.error(`[WARNING] Failed to import command: ${commandName}`);
+      const command = Discord.commands.get(commandName);
+      if (!command) {
+        console.error(`[WARNING] Failed to find command: ${commandName}`);
+        break;
       }
+      command.execute(interaction, api);
       break;
     }
     case InteractionType.MessageComponent:

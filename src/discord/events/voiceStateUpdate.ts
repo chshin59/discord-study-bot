@@ -47,9 +47,8 @@ function isStudyChannelJoin(
 ) {
   return (
     (!oldVoiceState ||
-      (oldVoiceState &&
-        (oldVoiceState.channel_id === null ||
-          oldVoiceState.channel_id === loungeChannelId))) &&
+      oldVoiceState.channel_id === null ||
+      oldVoiceState.channel_id === loungeChannelId) &&
     voiceState.channel_id !== null &&
     voiceState.channel_id !== loungeChannelId
   );

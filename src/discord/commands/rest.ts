@@ -7,8 +7,8 @@ import {
 import Study from "../../study/index.js";
 
 const data: RESTPostAPIChatInputApplicationCommandsJSONBody = {
-  name: "rest",
-  description: "휴식 toggle",
+  name: "휴식",
+  description: "휴식 토글",
 };
 
 async function execute(interaction: APIInteraction, api: API) {
