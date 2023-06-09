@@ -1,4 +1,9 @@
-import { REST, Routes } from "discord.js";
+import { REST } from "@discordjs/rest";
+import {
+  API,
+  APIApplicationCommand,
+  RESTPutAPIApplicationCommandsJSONBody,
+} from "@discordjs/core";
 import {
   CLIENT_ID,
   commandsPath,
@@ -6,18 +11,18 @@ import {
   getFiles,
   GUILD_ID,
 } from "./utils";
+import { Command } from "discord-study-bot";
 
-const commands = [];
-const commandFiles = getFiles(commandsPath);
+async function run() {
+  const rest = new REST({ version: "10" }).setToken(DISCORD_TOKEN);
+  const api = new API(rest);
 
-// Construct and prepare an instance of the REST module
-const rest = new REST({ version: "10" }).setToken(DISCORD_TOKEN);
+  const commands: RESTPutAPIApplicationCommandsJSONBody = [];
+  const commandFiles = getFiles(commandsPath);
 
-// and deploy your commands!
-(async () => {
   for (const file of commandFiles) {
-    const command = await import(`./discord/commands/${file}`);
-    commands.push(command.data.toJSON());
+    const command: Command = await import(`./discord/commands/${file}`);
+    commands.push(command.data);
   }
 
   try {
@@ -25,17 +30,19 @@ const rest = new REST({ version: "10" }).setToken(DISCORD_TOKEN);
       `Started refreshing ${commands.length} application (/) commands.`
     );
 
-    // The put method is used to fully refresh all commands in the guild with the current set
-    const data: any = await rest.put(
-      Routes.applicationGuildCommands(CLIENT_ID, GUILD_ID),
-      { body: commands }
-    );
+    const data: APIApplicationCommand[] =
+      await api.applicationCommands.bulkOverwriteGuildCommands(
+        CLIENT_ID,
+        GUILD_ID,
+        commands
+      );
 
     console.log(
       `Successfully reloaded ${data.length} application (/) commands.`
     );
   } catch (error) {
-    // And of course, make sure you catch and log any errors!
     console.error(error);
   }
-})();
+}
+
+run();

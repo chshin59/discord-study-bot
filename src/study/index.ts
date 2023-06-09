@@ -1,4 +1,3 @@
-import Discord from "../discord";
 import User from "../user";
 import Notion from "../notion";
 import { CreatePageResponse } from "@notionhq/client/build/src/api-endpoints";
@@ -19,8 +18,6 @@ export default class Study {
     const name = User.getName(userId);
     const duration = User.getDuration(userId) * 60 * 1000;
     const notion = User.getNotionUser(userId);
-    const botChannel = Discord.botChannel;
-    botChannel.send(`@everyone ${name} 님이 입장`);
 
     let studySession: StudySession | undefined = this.sessionMap.get(userId);
     const now = new Date();

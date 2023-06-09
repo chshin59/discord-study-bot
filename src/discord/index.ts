@@ -1,68 +1,46 @@
+import { REST } from "@discordjs/rest";
+import { WebSocketManager } from "@discordjs/ws";
 import {
-  Client,
-  ClientOptions,
-  Collection,
-  Events,
+  GatewayDispatchEvents,
   GatewayIntentBits,
-  TextChannel,
-  User,
-} from "discord.js";
-import {
-  commandsPath,
-  eventsPath,
-  getFiles,
-  DISCORD_TOKEN,
-  botChannelId,
-} from "../utils";
+  Client,
+  API,
+} from "@discordjs/core";
+import { DISCORD_TOKEN, commandsPath, eventsPath, getFiles } from "../utils";
 import { Command, Event } from "discord-study-bot";
 
-export class DiscordClient extends Client {
-  public commands: Collection<string, Command>;
-
-  constructor(options: ClientOptions, commands: Collection<string, Command>) {
-    super(options);
-    this.commands = commands;
-  }
-}
-
 export default class Discord {
-  private static client: DiscordClient;
-  public static botChannel: TextChannel;
+  private static client: Client;
+  private static gateway: WebSocketManager;
+  public static api: API;
+  public static commands: Map<string, Command>;
 
   public static async init(): Promise<void> {
-    const commands = await this.fetchCommands();
-    this.client = new DiscordClient(
-      {
-        intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildVoiceStates],
-      },
-      commands
-    );
+    const rest = new REST({ version: "10" }).setToken(DISCORD_TOKEN);
+    const gateway = new WebSocketManager({
+      token: DISCORD_TOKEN,
+      intents:
+        GatewayIntentBits.GuildMessages |
+        GatewayIntentBits.MessageContent |
+        GatewayIntentBits.GuildVoiceStates,
+      rest,
+    });
+    const client = new Client({ rest, gateway });
+    const api = new API(rest);
+
+    this.client = client;
+    this.gateway = gateway;
+    this.api = api;
+  }
+
+  public static async connect(): Promise<void> {
+    await this.registerCommands();
     await this.registerEvents();
-    await this.client.login(DISCORD_TOKEN);
-    await this.setBotChannel();
+    await this.gateway.connect();
   }
 
-  public static async registerEvents(): Promise<void> {
-    const eventFiles = getFiles(eventsPath);
-    for (const file of eventFiles) {
-      const filePath = `./events/${file}`;
-      const event: Event = await import(filePath);
-
-      if (!("name" in event) || !("listener" in event)) {
-        console.log(
-          `[WARNING] The command at ${filePath} is missing a required "name" or "listener" property.`
-        );
-        return;
-      }
-
-      event.name === Events.ClientReady
-        ? this.client.once(event.name, event.listener)
-        : this.client.on(event.name, event.listener);
-    }
-  }
-
-  private static async fetchCommands(): Promise<Collection<string, Command>> {
-    const commands: Collection<string, Command> = new Collection();
+  private static async registerCommands(): Promise<void> {
+    const commands = new Map<string, Command>();
     const commandFiles = getFiles(commandsPath);
     for (const file of commandFiles) {
       const filePath = `./commands/${file}`;
@@ -74,24 +52,28 @@ export default class Discord {
         );
         continue;
       }
-
       commands.set(command.data.name, command);
     }
-    return commands;
+
+    this.commands = commands;
   }
 
-  public static async fetchUser(userId: string): Promise<User> {
-    return this.client.users.fetch(userId);
-  }
+  private static async registerEvents(): Promise<void> {
+    const eventFiles = getFiles(eventsPath);
+    for (const file of eventFiles) {
+      const filePath = `./events/${file}`;
+      const event: Event = await import(filePath);
 
-  public static async setBotChannel(): Promise<void> {
-    try {
-      const botChannel = (await this.client.channels.fetch(
-        botChannelId
-      )) as TextChannel;
-      this.botChannel = botChannel;
-    } catch (error) {
-      throw Error("Error while setting Bot Channel");
+      if (!("name" in event) || !("listener" in event)) {
+        console.error(
+          `[WARNING] The command at ${filePath} is missing a required "name" or "listener" property.`
+        );
+        continue;
+      }
+
+      event.name === GatewayDispatchEvents.Ready
+        ? this.client.once(event.name, event.listener)
+        : this.client.on(event.name, event.listener);
     }
   }
 }

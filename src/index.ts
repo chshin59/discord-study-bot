@@ -6,5 +6,7 @@ async function run() {
   Notion.init();
   await Discord.init();
   await User.init();
+
+  await Discord.connect();
 }
 run();

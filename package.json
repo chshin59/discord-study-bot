@@ -14,8 +14,8 @@
     "build": "tsc --build"
   },
   "dependencies": {
+    "@discordjs/core": "^0.6.0",
     "@notionhq/client": "^2.2.3",
-    "discord.js": "^14.7.1",
     "dotenv": "^16.0.3",
     "fs": "^0.0.1-security",
     "path": "^0.12.7",

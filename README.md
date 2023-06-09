@@ -4,9 +4,9 @@
 
 ## 실행방법
 
-> 버전  
-> node: 18.12.1  
-> discord.js: 14.7.1  
+> Version  
+> node.js: >=18.12.0  
+> @discordjs/core: 0.6.0  
 > @notionhq/client: 2.2.3
 
 ```bash
